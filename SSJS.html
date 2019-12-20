@@ -1,0 +1,175 @@
+<script runat="server" language=ampscript>
+ SET @AMP_AccountId = AccountId
+  VAR @Image1
+  VAR @Image2
+  VAR @Image3
+</script>
+
+
+<script runat="server">
+  var i;
+  
+  Platform.Load("Core","1");
+  var accountId = Variable.GetValue("@AMP_AccountId")
+  
+  var dataRows = Platform.Function.LookupOrderedRows("sk_order_items ",1,"skDate desc, skUnitPrice desc","skAccountId",accountId);
+  var neverBoughtAnything = true;
+  
+   if(dataRows.length == 1) {
+         neverBoughtAnything = false;
+         var name = dataRows[0]["skProductName"];
+         var quantity = dataRows[0]["skQuantity"];
+         var unitPrice = dataRows[0]["skUnitPrice"];
+         var date = dataRows[0]["skDate"];
+      }
+  
+    
+    var content = "Thanks for staying with us! <br> Here are our products related to your purchase";
+
+    var relatedProductsJunction = Platform.Function.LookupOrderedRows("sk_relatedProduct_junctionObject",3,"product2Name desc","product1Name", name);
+  
+
+    var relatedProductsNames = [];
+
+    if( relatedProductsJunction.length == 3) {
+      for(i = 0 ; i < 3; i++){
+        relatedProductsNames[i] = relatedProductsJunction[i]["product2Name"];
+      }
+    }
+ 
+   //NIE DA SIE TABLIC, KŁAMIĄ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    var relatedProducts = [];
+   for(i = 0 ; i < 3 ; i++ ) {
+     //NIE MA PUSH NA ARRAY
+    relatedProducts[i] = Platform.Function.LookupOrderedRows("sk_products2",1,"Name asc","Name", relatedProductsNames[i]);
+   }
+  
+    var name1,name2,name3;
+    var image1,image2,image3;
+    var unitPrice1,unitPrice2,unitPrice3;
+    var pictureCustomreyKeyByProductName;
+  
+    if(relatedProducts.length == 3) {
+      
+      name1 = relatedProducts[0][0]["Name"];
+      unitPrice1 = relatedProducts[0][0]["UnitPrice"]; 
+      pictureCustomerKeyByProductName = Platform.Function.Lookup("sk_products2","ImageCustomerKey__c","Name",name1); //lookup na dane pole
+      Variable.SetValue("@Image1",pictureCustomerKeyByProductName);
+
+      name2 = relatedProducts[1][0]["Name"];
+      unitPrice2 = relatedProducts[1][0]["UnitPrice"]; 
+      pictureCustomerKeyByProductName = Platform.Function.Lookup("sk_products2","ImageCustomerKey__c","Name",name2); //lookup na dane pole
+      Variable.SetValue("@Image2",pictureCustomerKeyByProductName);
+
+      
+      name3 = relatedProducts[2][0]["Name"];
+      unitPrice3= relatedProducts[2][0]["UnitPrice"]; 
+      pictureCustomerKeyByProductName = Platform.Function.Lookup("sk_products2","ImageCustomerKey__c","Name",name3); //lookup na dane pole
+      Variable.SetValue("@Image3",pictureCustomerKeyByProductName);
+  
+        }
+       }
+
+    var currentTime = Now().getDay();
+    Write(currentTime);
+  
+</script>
+
+<script runat="server" language=ampscript>
+  SET @Image1 = ContentImagebyKey(@Image1)
+  SET @Image2 = ContentImagebyKey(@Image2)
+  SET @Image3 = ContentImagebyKey(@Image3)
+</script>
+
+<ctrl:var name=essa default=0/>
+
+<table>
+  
+    <tr>
+      
+      <td style="text-align:center; border: 1px solid #ddd; width:33%; padding: 7px;" >
+   
+        <table>
+          
+   <tr>
+       <td style=" height:60px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+        <ctrl:var name=name1 default=0/>
+     </td>
+         </tr>
+          
+   <tr>
+     <td style=" height:300px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+         %%=v(@Image1)=%%
+     </td>
+          </tr>
+                  
+          <tr>
+     <td style=" height:35px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+         <ctrl:var name=unitPrice1 default=0/>
+      </td>
+          </tr>
+          
+        </table>
+     
+      </td>
+  
+     
+      
+      <td style="text-align:center; border: 1px solid #ddd; width:33%; padding: 7px;" >
+   
+        <table>
+          
+   <tr>
+       <td style=" height:60px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+        <ctrl:var name=name2 default=0/>
+     </td>
+         </tr>
+          
+   <tr>
+     <td style=" height:300px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+         %%=v(@Image2)=%%
+     </td>
+          </tr>
+                  
+          <tr>
+     <td style=" height:35px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+        <ctrl:var name=unitPrice2 default=0/>
+      </td>
+          </tr>
+          
+        </table>
+     
+      </td>
+  
+    
+    
+      
+      <td style="text-align:center; border: 1px solid #ddd; width:33%; padding: 7px;" >
+   
+        <table>
+          
+   <tr>
+       <td style=" height:60px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+        <ctrl:var name=name3 default=0/>
+     </td>
+         </tr>
+          
+   <tr>
+     <td style=" height:300px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+         %%=v(@Image3)=%%
+     </td>
+          </tr>
+                  
+          <tr>
+     <td style=" height:35px; display:table-cell; vertical-align:middle; text-align:center; border-bottom: 1px solid #ddd;">
+        <ctrl:var name=unitPrice3 default=0/>
+      </td>
+          </tr>
+          
+        </table>
+     
+      </td>
+   
+    </tr>
+  
+  </table>
