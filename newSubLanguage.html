@@ -1,3 +1,7 @@
+%%[
+    var @newsletterListId
+]%%
+
 <script runat="server">
     Platform.Load('Core','1');
     var debugging = true;
@@ -29,6 +33,8 @@
             newsletterListId = lists[i]["ID"];
             debugValue('list', newsletterListId);
         };
+
+        Variable.SetValue("@newsletterListId",newsletterListId);
 
         if(!subKey){
             debugValue('noSubKey', 'noSubKey');
@@ -63,3 +69,7 @@
     };
 
 </script>
+
+%%[
+    Output(Concat("<br/> </br> newsletterListId in ampscript: ", @newsletterListId))
+]%%
