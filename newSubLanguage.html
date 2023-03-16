@@ -1,0 +1,65 @@
+<script runat="server">
+    Platform.Load('Core','1');
+    var debugging = true;
+
+    function debugValue(description, value) {
+        Write(description + ': ' + (typeof value == 'object' ? Stringify(value) : value) + '<br><br>');
+    };
+
+
+    try {
+        var language = Platform.Request.GetQueryStringParameter('language');
+        debugValue('language: ', language);
+        var countryFromLanguage;
+        switch (language) {
+            case 'sk':
+                countryFromLanguage = 'Slovakia';
+            case 'ee':
+                countryFromLanguage = 'Estonia';
+            default:
+                countryFromLanguage = 'Finland';
+        };
+        
+        var subKey = Attribute.GetValue("_subscriberkey");
+        debugValue('subKey', subKey);
+
+        var lists = List.Retrieve({Property:"ListName",SimpleOperator:"equals",Value:"Newsletter"}); 
+        var newsletterListId;
+        for (var i = 0; i < lists.length; i++) {
+            newsletterListId = lists[i]["ID"];
+            debugValue('list', newsletterListId);
+        };
+
+        if(!subKey){
+            debugValue('noSubKey', 'noSubKey');
+            debugValue('countryFromLanguage: ', countryFromLanguage);
+
+            var subkey = "ryszard.rogalski@britenet.com.pl";
+            var email = "ryszard.rogalski@britenet.com.pl"
+            var prox = new Script.Util.WSProxy();
+            var sub = {
+                SubscriberKey: subkey,
+                EmailAddress: email,
+                Attributes: [
+                    {'Name': 'Country', 'Value': countryFromLanguage},
+                    {'Name': 'Newsletter', 'Value': true},
+                ],
+                Lists: [{
+                    ID: newsletterListId,
+                    Status: 'Active'
+                }]
+            };
+            var options = { 
+                SaveOptions: [{
+                PropertyName: "*",
+                SaveAction: "UpdateAdd"
+                }]
+            };
+            var resp = prox.createItem("Subscriber", sub, options); 
+            Write("Response: " + Stringify(resp));
+        }
+    } catch (error) {
+        if (debugging) debugValue('1. Error caught', error);
+    };
+
+</script>
